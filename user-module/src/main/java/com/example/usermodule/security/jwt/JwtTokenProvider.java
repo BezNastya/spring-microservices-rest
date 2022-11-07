@@ -63,6 +63,20 @@ public class JwtTokenProvider {
                 .signWith(SignatureAlgorithm.HS256, secret)//
                 .compact();
     }
+    public String createTokenTest(String username, List<Role> roles) {
+
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("roles", getRoleNames(roles));
+
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + validityInMilliseconds);
+
+        return Jwts.builder()//
+                .setClaims(claims)//
+                .setIssuedAt(now)//
+                .setExpiration(validity)//
+                .compact();
+    }
 
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));

@@ -75,6 +75,7 @@ public class JwtUser implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
     }

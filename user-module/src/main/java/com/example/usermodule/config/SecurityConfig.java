@@ -17,7 +17,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final String ADMIN_ENDPOINT = "/api/v1/admin/**";
+    private static final String ADMIN_ENDPOINT = "/all";
     private static final String START_PAGE = "/";
 
     @Autowired
@@ -41,10 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
+
                 .antMatchers(START_PAGE).permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
+                .antMatchers("/{id}").hasRole("ADMIN")
+                .antMatchers("/save/{id}").hasAnyRole("ADMIN","USER")
+
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
