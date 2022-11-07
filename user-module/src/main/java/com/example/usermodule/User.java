@@ -1,5 +1,7 @@
 package com.example.usermodule;
 
+import java.util.List;
+
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 
@@ -24,6 +26,11 @@ public class User {
     @Column(name = "age")
     private int age;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
+    private List<Role> roles;
 
     public User() {}
 
