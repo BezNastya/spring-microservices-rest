@@ -1,7 +1,6 @@
 package com.example.usermodule.security;
 
 import com.example.usermodule.User;
-import com.example.usermodule.UserRepository;
 import com.example.usermodule.security.jwt.JwtUser;
 import com.example.usermodule.security.jwt.JwtUserFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
+import repositories.UserRepository;
 
 
 @Service
