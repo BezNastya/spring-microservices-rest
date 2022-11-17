@@ -1,9 +1,11 @@
 package com.example.bookmodule.dto;
 
 import com.example.bookmodule.entity.Book;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.Data;
 
 @Data
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BookDTO {
 
     private long id;

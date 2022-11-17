@@ -37,10 +37,10 @@ public class Controller {
 
     @GetMapping("/{id}")
     public UserDto getById(@PathVariable("id") String id) {
-        User usr = userRepository.findById(Long.valueOf(id)).get();
+
         BooksList usrBooks =
                 restTemplate.getForObject("http://localhost:8002/books/"+id, BooksList.class);
-
+        User usr = userRepository.findById(Long.valueOf(id)).get();
         UserDto res = new UserDto();
         res.setId(usr.getId());
         res.setLogin(usr.getLogin());
