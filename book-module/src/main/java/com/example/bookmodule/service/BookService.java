@@ -1,8 +1,6 @@
 package com.example.bookmodule.service;
 
-import com.example.bookmodule.dto.BookDTO;
-import com.example.bookmodule.dto.BookRequestDTO;
-import com.example.bookmodule.dto.BooksList;
+import com.example.bookmodule.dto.*;
 import com.example.bookmodule.entity.Book;
 import com.example.bookmodule.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,8 @@ import java.util.stream.Collectors;
 public class BookService {
     @Autowired
     private BookRepository bookRepository;
+    @Autowired
+    private BookOrderService bookOrderService;
 
     public BooksList getAllBooks() {
         List<Book> bookList = bookRepository.findAll();
@@ -34,10 +34,9 @@ public class BookService {
         return new BooksList(bookDTOS);
     }
 
-    public BooksList getAllBooksByUserId(long userId) {
-        List<Book> bookList = bookRepository.findAll();
+    public BooksList getAllBooksByIds(List<Long> bookIds) {
+        List<Book> bookList = bookRepository.findAllById(bookIds);
         List<BookDTO> bookDTOS = bookList.stream()
-                .filter(x -> x.getUserId() == userId)
                 .map(BookDTO::new)
                 .collect(Collectors.toList());
         return new BooksList(bookDTOS);
@@ -46,13 +45,5 @@ public class BookService {
     public void addBook(BookRequestDTO bookRequestDTO) {
         Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
         bookRepository.save(entityBook);
-    }
-
-    public void updateUserForBook(long bookId, long userId) {
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new NoSuchElementException("No such book is present with id" + bookId));
-
-        book.setUserId(userId);
-        bookRepository.save(book);
     }
 }

@@ -7,13 +7,11 @@ import lombok.Data;
 public class BookRequestDTO {
     private String name;
     private long authorId;
-    private long userId;
 
     public static Book convertToEntity(BookRequestDTO bookRequestDTO) {
         Book book = new Book();
         book.setName(bookRequestDTO.getName());
         book.setAuthorId(bookRequestDTO.getAuthorId());
-        book.setUserId(bookRequestDTO.userId);
         return book;
     }
 }
