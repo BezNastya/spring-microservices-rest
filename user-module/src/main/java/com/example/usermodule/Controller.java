@@ -4,16 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import repositories.UserRepository;
+import com.example.usermodule.repositories.UserRepository;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
@@ -36,16 +37,22 @@ public class Controller {
     }
 
     @GetMapping("/{id}")
-    public UserDto getById(@PathVariable("id") String id) {
+    public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") String id) throws URISyntaxException {
+        HttpHeaders headers = new HttpHeaders();
 
-        BooksList usrBooks =
-                restTemplate.getForObject("http://localhost:8002/books/"+id, BooksList.class);
+        headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+        headers.add("Authorization",token);
+        HttpEntity<Long> entity= new HttpEntity(id,headers);
+        URI uri = new URI("http://localhost:8002/books/" + id);
+
+        BooksList list = restTemplate.exchange(uri, HttpMethod.GET, entity, BooksList.class).getBody();
+
         User usr = userRepository.findById(Long.valueOf(id)).get();
         UserDto res = new UserDto();
         res.setId(usr.getId());
         res.setLogin(usr.getLogin());
         res.setAge(usr.getAge());
-        res.setBooks(usrBooks.getBooks());
+        res.setBooks(list.getBooks());
 
         return res;
     }

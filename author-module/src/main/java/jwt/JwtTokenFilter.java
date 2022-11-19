@@ -28,10 +28,10 @@ public class JwtTokenFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain filterChain)
             throws IOException, ServletException {
-        Collection<GrantedAuthority> roles = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) req);
         if (token != null && jwtTokenProvider.validateToken(token)) {
+            Collection<GrantedAuthority> roles = List.of(new SimpleGrantedAuthority(jwtTokenProvider.getRole(token)));
             Authentication auth = new UsernamePasswordAuthenticationToken(jwtTokenProvider.getUsername(token), "", roles);
 
             if (auth != null) {

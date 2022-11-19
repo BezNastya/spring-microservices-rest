@@ -8,6 +8,8 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 
 import com.example.authormodule.entities.Role;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
@@ -98,4 +100,11 @@ public class JwtTokenProvider {
         return result;
     }
 
+    public String getRole(String token) {
+        ObjectMapper mapper = new ObjectMapper();
+        Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        JsonNode jsonNode = mapper.valueToTree(claims);
+        String role = jsonNode.get("roles").get(0).textValue();
+        return role;
+    }
 }

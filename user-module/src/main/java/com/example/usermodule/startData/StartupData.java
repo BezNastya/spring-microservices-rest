@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import repositories.RoleRepository;
-import repositories.UserRepository;
+import com.example.usermodule.repositories.RoleRepository;
+import com.example.usermodule.repositories.UserRepository;
 
 
 @Component

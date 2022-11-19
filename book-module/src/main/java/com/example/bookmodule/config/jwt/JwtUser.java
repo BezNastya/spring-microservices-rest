@@ -1,4 +1,4 @@
-package com.example.bookmodule.security.jwt;
+package com.example.bookmodule.config.jwt;
 
 import java.util.Collection;
 

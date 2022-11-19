@@ -18,7 +18,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 
 @Configuration
 @Import(JwtTokenProvider.class)
-
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;

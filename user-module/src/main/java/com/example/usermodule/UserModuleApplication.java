@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-@EnableJpaRepositories("repositories")
+@EnableJpaRepositories
 public class UserModuleApplication {
 
     public static void main(String[] args) {

@@ -1,19 +1,20 @@
-package com.example.bookmodule.security;
+package com.example.bookmodule.config;
 
 
-import com.example.bookmodule.security.jwt.JwtConfigurer;
-import com.example.bookmodule.security.jwt.JwtTokenProvider;
+import com.example.bookmodule.config.jwt.JwtConfigurer;
+import com.example.bookmodule.config.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 
-
 @Configuration
+@Import(JwtTokenProvider.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -41,10 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/h2-console/**").permitAll()
-
+                .antMatchers("/books").permitAll()
                 .antMatchers("/books/**").hasRole("USER")
-                .antMatchers("/booksByAuthor/**").permitAll()
-
+                .antMatchers("/booksByAuthor/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
