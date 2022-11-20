@@ -1,9 +1,7 @@
 package com.example.usermodule.security;
 
-import java.util.List;
-import java.util.Properties;
-
 import com.example.usermodule.Role;
+import com.example.usermodule.repositories.RoleRepository;
 import com.example.usermodule.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +14,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import com.example.usermodule.repositories.RoleRepository;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.List;
+import java.util.Properties;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@TestPropertySource(locations="classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureMockMvc
 @Import(Properties.class)
 public class TokenAuthenticationServiceTest {
@@ -34,7 +33,8 @@ public class TokenAuthenticationServiceTest {
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    JwtTokenProvider jwtTokenProvider;
 
     @Autowired
     WebTestClient webTestClient;
@@ -46,30 +46,30 @@ public class TokenAuthenticationServiceTest {
 
     @Test
     public void test_withValidToken_receiveOk() {
-        final Role adminRole=new Role();
+        final Role adminRole = new Role();
         adminRole.setName("ADMIN");
-        final List<Role> roleAdmin= List.of(adminRole);
+        final List<Role> roleAdmin = List.of(adminRole);
 
-        var tokenString = jwtTokenProvider.createToken("admin",roleAdmin);
+        var tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
                 .get().uri("/all")
-                .headers(http -> http.add("Authorization","Bearer_"+tokenString))
+                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk();
     }
 
     @Test
     public void test_withInvalidToken_receive401() {
-        final Role userRole=new Role();
+        final Role userRole = new Role();
         userRole.setName("USER");
-        final List<Role> roleUser= List.of(userRole);
+        final List<Role> roleUser = List.of(userRole);
 
-        var tokenString = jwtTokenProvider.createToken("user",roleUser);
+        var tokenString = jwtTokenProvider.createToken("user", roleUser);
 
         webTestClient
                 .get().uri("/all")
-                .headers(http -> http.add("Authorization","Bearer_"+tokenString))
+                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isForbidden();
     }
@@ -85,29 +85,30 @@ public class TokenAuthenticationServiceTest {
 
     @Test
     public void testsave_withValidToken_receiveNotFound_forAdmin() {
-        final Role adminRole=new Role();
+        final Role adminRole = new Role();
         adminRole.setName("ADMIN");
-        final List<Role> roleAdmin= List.of(adminRole);
+        final List<Role> roleAdmin = List.of(adminRole);
 
-        var tokenString = jwtTokenProvider.createToken("admin",roleAdmin);
+        var tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
                 .get().uri("/1/save")
-                .headers(http -> http.add("Authorization","Bearer_"+tokenString))
+                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isNotFound();
     }
+
     @Test
     public void testsave_withValidToken_receiveNotFound_forUser() {
-        final Role userRole=new Role();
+        final Role userRole = new Role();
         userRole.setName("USER");
-        final List<Role> roleUser= List.of(userRole);
+        final List<Role> roleUser = List.of(userRole);
 
-        var tokenString = jwtTokenProvider.createToken("user",roleUser);
+        var tokenString = jwtTokenProvider.createToken("user", roleUser);
 
         webTestClient
                 .get().uri("/1/save")
-                .headers(http -> http.add("Authorization","Bearer_"+tokenString))
+                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isNotFound();
     }
