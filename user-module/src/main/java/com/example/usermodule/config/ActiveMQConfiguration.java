@@ -16,8 +16,6 @@ import java.util.Map;
 @EnableJms
 @Configuration
 public class ActiveMQConfiguration {
-
-
     @Bean
     public JmsListenerContainerFactory<?> queueListenerFactory() {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();

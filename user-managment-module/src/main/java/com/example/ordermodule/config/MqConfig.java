@@ -29,7 +29,7 @@ public class MqConfig {
     public MessageConverter messageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         Map<String, Class<?>> typeIdMappings = new HashMap<>();
-        typeIdMappings.put("JMS_TYPE", UserDto.class);
+        typeIdMappings.put("JMS_TYPE", Long.class);
         converter.setTypeIdMappings(typeIdMappings);
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
