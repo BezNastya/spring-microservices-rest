@@ -15,5 +15,5 @@ public class UserDto  implements Serializable {
 
     private int age;
 
-    private List<Book> books = new ArrayList<>();
+    private List<Book> bookList;
 }

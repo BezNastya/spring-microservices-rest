@@ -1,6 +1,5 @@
 package com.example.usermodule;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -16,6 +15,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class Controller {
@@ -52,7 +52,7 @@ public class Controller {
         res.setId(usr.getId());
         res.setLogin(usr.getLogin());
         res.setAge(usr.getAge());
-        res.setBooks(list.getBooks());
+        res.setBookList(list.getBooks());
 
         return res;
     }
@@ -67,9 +67,8 @@ public class Controller {
         return res;
     }
 
-    @GetMapping("/save/{id}")
+    @GetMapping("/file/{id}")
     public ResponseEntity<Resource> getFileById(@PathVariable("id") String id) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         User usr = userRepository.findById(Long.valueOf(id)).get();
         UserDto res = new UserDto();
         res.setId(usr.getId());
