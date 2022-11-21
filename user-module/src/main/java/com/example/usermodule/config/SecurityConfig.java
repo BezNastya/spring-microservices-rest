@@ -41,6 +41,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
+                .antMatchers("/actuator/info").permitAll()
+                .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/actuator/metrics").permitAll()
+                .antMatchers("/actuator/beans").permitAll()
+                .antMatchers("/actuator/configprops").permitAll()
+                .antMatchers("/actuator/loggers").permitAll()
+                .antMatchers("/actuator/env").permitAll()
+                .antMatchers("/actuator/httptrace").permitAll()
+                .antMatchers("/actuator/conditions").permitAll()
+                .antMatchers("/actuator").hasRole("ADMIN")
+
+
+
 
                 .antMatchers(START_PAGE).permitAll()
                 .antMatchers("/h2-console/**").permitAll()
