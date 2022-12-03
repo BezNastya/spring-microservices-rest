@@ -3,6 +3,9 @@ package com.example.authormodule.services;
 import com.example.authormodule.dto.Book;
 import com.example.authormodule.dto.BooksList;
 import com.example.authormodule.entities.Author;
+import com.example.authormodule.entities.Role;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jwt.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +14,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static com.example.authormodule.config.ActiveMQConfiguration.AUTHOR_QUEUE;
 
@@ -33,6 +41,13 @@ public class AuthorService {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    public AuthorService(RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
+        this.restTemplate = restTemplate;
+        this.authorRepository = authorRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
 
     @Async("asyncExecutor")

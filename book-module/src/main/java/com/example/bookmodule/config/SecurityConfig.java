@@ -44,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/h2-console/**").permitAll()
                 .antMatchers("/actuator/info").permitAll()
                 .antMatchers("/actuator/health").permitAll()
-                .antMatchers("/actuator/metrics").permitAll()
+                .antMatchers("/actuator/metrics/**").permitAll()
                 .antMatchers("/actuator/beans").permitAll()
                 .antMatchers("/actuator/configprops").permitAll()
                 .antMatchers("/actuator/loggers").permitAll()

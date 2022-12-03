@@ -2,6 +2,9 @@ package com.example.usermodule;
 
 import com.example.usermodule.exceptions.UserNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -23,11 +26,18 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 public class Controller {
 
-    @Autowired
     private RestTemplate restTemplate;
+    private UserRepository userRepository;
+    private MeterRegistry meterRegistry;
+    private Timer syncExecution;
 
     @Autowired
-    private UserRepository userRepository;
+    public Controller(RestTemplate restTemplate, UserRepository userRepository, MeterRegistry meterRegistry) {
+        this.restTemplate = restTemplate;
+        this.userRepository = userRepository;
+        this.meterRegistry = meterRegistry;
+        this.syncExecution = this.meterRegistry.timer("sync.execution", "module", "book-module");
+    }
 
     @GetMapping("/")
     public String test() {
@@ -40,7 +50,7 @@ public class Controller {
     }
 
     @GetMapping("/{id}")
-    public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") String id) throws URISyntaxException {
+    public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") String id) throws Exception {
         HttpHeaders headers = new HttpHeaders();
 
         headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
@@ -48,8 +58,8 @@ public class Controller {
         HttpEntity<Long> entity= new HttpEntity(id,headers);
         URI uri = new URI("http://localhost:8002/books/" + id);
 
-        BooksList list = restTemplate.exchange(uri, HttpMethod.GET, entity, BooksList.class).getBody();
-
+        BooksList list = syncExecution.recordCallable(() ->
+                restTemplate.exchange(uri, HttpMethod.GET, entity, BooksList.class).getBody());
         User usr = userRepository.findById(Long.valueOf(id)).get();
         UserDto res = new UserDto();
         res.setId(usr.getId());
