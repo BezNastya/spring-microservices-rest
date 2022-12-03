@@ -4,6 +4,8 @@ import com.example.authormodule.dto.Book;
 import com.example.authormodule.dto.BooksList;
 import com.example.authormodule.entities.Author;
 import com.example.authormodule.entities.Role;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -27,14 +29,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class AuthorService {
-    @Autowired
     private RestTemplate restTemplate;
-
-    @Autowired
     private AuthorRepository authorRepository;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    public AuthorService(RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
+        this.restTemplate = restTemplate;
+        this.authorRepository = authorRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
 
     @Async("asyncExecutor")
