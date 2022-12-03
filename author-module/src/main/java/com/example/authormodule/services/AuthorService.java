@@ -33,14 +33,16 @@ import static com.example.authormodule.config.ActiveMQConfiguration.AUTHOR_QUEUE
 @Service
 @Slf4j
 public class AuthorService {
-    @Autowired
     private RestTemplate restTemplate;
-
-    @Autowired
     private AuthorRepository authorRepository;
+    private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    public AuthorService(RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
+        this.restTemplate = restTemplate;
+        this.authorRepository = authorRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Autowired
     public AuthorService(RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
