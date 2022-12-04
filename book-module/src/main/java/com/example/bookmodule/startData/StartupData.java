@@ -31,15 +31,15 @@ public class StartupData implements CommandLineRunner {
     }
 
 
-
     private void createBooks() {
         Book book1 = new Book();
-        book1.setName("bool1");
+        book1.setName("book1");
         book1.setId(1);
         book1.setAuthorId(1);
         Book book2 = new Book();
-        book2.setName("bool2");
+        book2.setName("book2");
         book2.setId(2);
+        book2.setAuthorId(2);
 
         bookRepository.save(book1);
         bookRepository.save(book2);
@@ -48,7 +48,5 @@ public class StartupData implements CommandLineRunner {
     }
 
 
-
-
-    }
+}
 

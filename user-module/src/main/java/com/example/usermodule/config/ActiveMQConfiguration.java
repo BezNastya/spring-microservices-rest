@@ -1,6 +1,6 @@
 package com.example.usermodule.config;
 
-import com.example.usermodule.UserDto;
+import com.example.usermodule.Book;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
@@ -11,11 +11,15 @@ import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @EnableJms
 @Configuration
 public class ActiveMQConfiguration {
+
+    public static final String USERS_BOOK_QUEUE = "USERS_BOOK_QUEUE";
+
     @Bean
     public JmsListenerContainerFactory<?> queueListenerFactory() {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
