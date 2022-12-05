@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/books")
 @Slf4j
 public class BookRestController {
 
@@ -21,12 +22,12 @@ public class BookRestController {
     @Autowired
     private BookOrderService bookOrderService;
 
-    @GetMapping("/books")
+    @GetMapping("/all")
     public BooksList getAllBooks() {
         return bookService.getAllBooks();
     }
 
-    @GetMapping("/books/{userId}")
+    @GetMapping("/{userId}")
     public BooksList getAllBooksByUser(@PathVariable long userId) {
         List<Long> bookIds = bookOrderService.getAllBooksInOrdersByUserId(userId);
         return bookService.getAllBooksByIds(bookIds);
@@ -37,7 +38,7 @@ public class BookRestController {
         return bookService.getAllBooksByAuthorId(authorId);
     }
 
-    @PostMapping("/books")
+    @PostMapping("/add")
     public void addNewBook(@RequestBody BookRequestDTO bookRequestDTO) {
         bookService.addBook(bookRequestDTO);
     }
@@ -53,9 +54,14 @@ public class BookRestController {
     }
 
     @DeleteMapping("/delete/book/{id}")
-    public String deleteBook(@PathVariable long id){
+    public String deleteBook(@PathVariable long id) {
         Book b = bookService.getBook(id);
         bookService.deleteBookWithAuthor(b);
         return "Deleted " + id;
+    }
+
+    @PutMapping("/update/{id}/{userId}")
+    public void updateUserOfBook(@PathVariable long id, @PathVariable long userId) {
+        bookService.updateUserForBook(id, userId);
     }
 }
