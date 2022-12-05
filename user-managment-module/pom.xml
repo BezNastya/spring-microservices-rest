@@ -8,10 +8,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>order-module</artifactId>
+    <artifactId>user-management-module</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>order-module</name>
-    <description>order-module</description>
+    <name>user-management-module</name>
+    <description>user-management-module</description>
     <properties>
         <java.version>11</java.version>
     </properties>

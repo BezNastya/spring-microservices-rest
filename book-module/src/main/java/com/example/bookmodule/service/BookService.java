@@ -65,7 +65,6 @@ public class BookService {
     public BooksList getAllBooksByIds(List<Long> bookIds) {
         List<Book> bookList = bookRepository.findAllById(bookIds);
         List<BookDTO> bookDTOS = bookList.stream()
-                .filter(x -> x.getUserId() == userId)
                 .map(BookDTO::new)
                 .collect(Collectors.toList());
         return new BooksList(bookDTOS);
@@ -81,7 +80,6 @@ public class BookService {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
         if (bookOptional.isPresent()) {
             Book book = bookOptional.get();
-            book.setUserId(userId);
             bookRepository.save(book);
         } else {
             timesBookNotFound.increment();

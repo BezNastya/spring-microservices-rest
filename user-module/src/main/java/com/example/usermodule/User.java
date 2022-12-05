@@ -40,15 +40,6 @@ public class User {
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
 
-    @ManyToMany
-    @JsonIgnore
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @JoinTable(name = "user_books",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "book_id", referencedColumnName = "id")})
-    private List<Book> books = new ArrayList<>();
-
-
     public User() {}
 
     public void setId(Long id) {

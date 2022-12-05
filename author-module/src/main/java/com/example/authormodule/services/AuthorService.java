@@ -44,13 +44,6 @@ public class AuthorService {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @Autowired
-    public AuthorService(RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
-        this.restTemplate = restTemplate;
-        this.authorRepository = authorRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
-
 
     @Async("asyncExecutor")
     public CompletableFuture<List<Book>> getAuthorsWithBooks(Long id, String token) throws URISyntaxException {

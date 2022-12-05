@@ -29,27 +29,27 @@ public class UserService {
             User user = userRepository.findUserById(userId);
             if(user==null)
                 throw new UserNotFoundException("User not found");
-            if(!user.getBooks().isEmpty())
-                throw new UserHasBooksException("User has books. Can not delete him");
+//            if(!user.getBooks().isEmpty())
+//                throw new UserHasBooksException("User has books. Can not delete him");
 
         userRepository.deleteById(userId);
         log.info("Thread finished");
 
     }
 
-    @JmsListener(destination = USERS_BOOK_QUEUE, selector = "JMSType = 'DELETE'")
-    public void deleteBooksInUsers(long bookId){
-        Book book = new Book();
-        book.setId(bookId);
-        List<User> users = userRepository.findUsersByBooksContains(book);
-        users.stream().forEach(u -> {
-            List<Book> userBooks =  u.getBooks().stream()
-                    .filter(b -> b.getId() != book.getId())
-                    .collect(Collectors.toList());
-            u.setBooks(userBooks);
-        });
-
-        userRepository.saveAll(users);
-    }
+//    @JmsListener(destination = USERS_BOOK_QUEUE, selector = "JMSType = 'DELETE'")
+//    public void deleteBooksInUsers(long bookId){
+//        Book book = new Book();
+//        book.setId(bookId);
+//        List<User> users = userRepository.findUsersByBooksContains(book);
+////        users.stream().forEach(u -> {
+////            List<Book> userBooks =  u.getBooks().stream()
+////                    .filter(b -> b.getId() != book.getId())
+////                    .collect(Collectors.toList());
+////            u.setBooks(userBooks);
+////        });
+//
+//        userRepository.saveAll(users);
+//    }
 
 }
