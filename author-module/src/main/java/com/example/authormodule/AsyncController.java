@@ -41,12 +41,12 @@ public class AsyncController {
         return "Hello I'm author utility!";
     }
 
-    @GetMapping("/all")
+    @GetMapping("/author/all")
     public List<Author> getAuthors() {
         return authorRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/author/{id}")
     public Author getById(@PathVariable String id) {
         return authorRepository.findById(Long.valueOf(id)).get();
     }
