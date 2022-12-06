@@ -1,5 +1,6 @@
 package com.example.usermodule;
 
+import com.example.usermodule.feign.BookModuleClient;
 import com.example.usermodule.repositories.RoleRepository;
 import com.example.usermodule.repositories.UserRepository;
 import com.example.usermodule.security.jwt.JwtTokenProvider;
@@ -19,14 +20,9 @@ import org.springframework.boot.test.mock.mockito.MockReset;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.*;
@@ -60,11 +56,8 @@ public class UserControllerTests {
     private RoleRepository mockRoleRepository;
 
 
-    @MockBean(reset = MockReset.NONE)
-    private RestTemplate mockRestTemplate;
-
-    @Mock
-    private ResponseEntity<BooksList> mockResponseEntity;
+    @MockBean
+    private BookModuleClient bookModuleClient;
 
     private final List<User> mockUsers = new ArrayList<>();
 
@@ -105,9 +98,8 @@ public class UserControllerTests {
     public void setUpMocks() {
         MockitoAnnotations.openMocks(this);
 
-        doReturn(mockBookListForUser).when(mockResponseEntity).getBody();
-        when(mockRestTemplate.exchange(any(URI.class), any(HttpMethod.class), any(HttpEntity.class), eq(BooksList.class)))
-                .thenReturn(mockResponseEntity);
+        when(bookModuleClient.getBooksByAuthor(any(), any()))
+                .thenReturn(mockBookListForUser);
     }
 
 

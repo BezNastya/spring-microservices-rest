@@ -51,11 +51,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
             <!-- need this to generate  build properties file-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

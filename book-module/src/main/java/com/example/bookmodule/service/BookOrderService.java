@@ -2,10 +2,10 @@ package com.example.bookmodule.service;
 
 import com.example.bookmodule.dto.BookOrderDTO;
 import com.example.bookmodule.dto.BookOrderList;
+import com.example.bookmodule.feign.OrderModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,13 +15,13 @@ import static com.example.bookmodule.config.ActiveMQConfiguration.*;
 
 @Service
 public class BookOrderService {
-    private RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private OrderModuleClient orderModuleClient;
     @Autowired
     private JmsTemplate jmsTemplate;
 
     public List<Long> getAllBooksInOrders() {
-        BookOrderList bookOrderList = restTemplate
-                .getForObject("http://localhost:8004/orders", BookOrderList.class);
+        BookOrderList bookOrderList = orderModuleClient.getAllBookOrders();
         return bookOrderList
                 .getBookOrders()
                 .stream()
@@ -30,8 +30,7 @@ public class BookOrderService {
     }
 
     public List<Long> getAllBooksInOrdersByUserId(long userId) {
-        BookOrderList bookOrderList = restTemplate
-                .getForObject("http://localhost:8004/orders/" + userId, BookOrderList.class);
+        BookOrderList bookOrderList = orderModuleClient.getBookOrdersByUserId(userId);
         return bookOrderList
                 .getBookOrders()
                 .stream()
