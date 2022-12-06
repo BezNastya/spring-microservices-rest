@@ -8,12 +8,13 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/management")
 public class UserManagmentController {
     @Autowired
     private JmsTemplate jmsTemplate;
 
 
-    @PostMapping("/management/{userId}")
+    @PostMapping("/{userId}")
     public void getAllBookOrdersByUser(@PathVariable long userId) throws URISyntaxException {
         jmsTemplate.convertAndSend("user_management", userId);
     }

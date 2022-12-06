@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @FeignClient(name = "order-module", url = "${ordermodule.url}")
 public interface OrderModuleClient {
-    @RequestMapping(method = RequestMethod.GET, value = "/orders")
+    @RequestMapping(method = RequestMethod.GET, value = "/orders/all")
     BookOrderList getAllBookOrders();
 
     @RequestMapping(method = RequestMethod.GET, value = "/orders/{userId}")
