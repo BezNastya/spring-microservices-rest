@@ -24,3 +24,11 @@ spring:
           uri: localhost:8002/
           predicates:
             - Path=/books/**
+        - id: order-module
+          uri: localhost:8004/
+          predicates:
+            - Path=/orders/**
+        - id: user-management-module
+          uri: localhost:8005/
+          predicates:
+            - Path=/management/**
