@@ -15,7 +15,19 @@
     <description>book-module</description>
     <properties>
         <java.version>11</java.version>
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -76,11 +88,14 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>activemq-broker</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <!-- need this to generate  build properties file-->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -101,10 +116,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
