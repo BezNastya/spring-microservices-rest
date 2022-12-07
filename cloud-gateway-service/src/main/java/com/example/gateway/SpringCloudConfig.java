@@ -21,6 +21,9 @@ public class SpringCloudConfig {
                 .route(r -> r.path("/authors/**")
                         .uri("lb://author-module")
                         .id("author-module"))
+                .route(r -> r.path("/orders/**")
+                        .uri("lb://orders")
+                        .id("order-module"))
                 .build();
     }
 
