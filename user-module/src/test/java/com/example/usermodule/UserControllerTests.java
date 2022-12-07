@@ -112,7 +112,7 @@ public class UserControllerTests {
         String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
-                .get().uri("/all")
+                .get().uri("/users/all")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk()
@@ -135,7 +135,7 @@ public class UserControllerTests {
         String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
-                .get().uri("/1")
+                .get().uri("/users/1")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk()
@@ -161,7 +161,7 @@ public class UserControllerTests {
         String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
-                .get().uri("/file/1")
+                .get().uri("/users/file/1")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk()
