@@ -15,7 +15,7 @@ public class UserManagmentController {
 
 
     @PostMapping("/{userId}")
-    public void getAllBookOrdersByUser(@PathVariable long userId) throws URISyntaxException {
+    public void manageUserById(@PathVariable long userId) throws URISyntaxException {
         jmsTemplate.convertAndSend("user_management", userId);
     }
 }

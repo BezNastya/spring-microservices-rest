@@ -53,7 +53,7 @@ public class TokenAuthenticationServiceTest {
         var tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
-                .get().uri("/all")
+                .get().uri("/users/all")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk();

@@ -35,8 +35,6 @@ public class BookService {
         this.numberOfBooksAdded = this.meterRegistry.counter("books.actions", "action", "add");
         this.timesBookNotFound = this.meterRegistry.counter("books.exception", "type", "not-found");
     }
-    @Autowired
-    private BookOrderService bookOrderService;
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -49,8 +47,14 @@ public class BookService {
         return new BooksList(bookDTOS);
     }
 
-    public Book getBook(long id){
-        return bookRepository.findById(id).get();
+    public Book getBook(long id) {
+        Optional<Book> bookOptional = bookRepository.findById(id);
+        if (bookOptional.isPresent()) {
+            return bookOptional.get();
+        } else {
+            timesBookNotFound.increment();
+            throw new NoSuchElementException("No such book is present with id" + id);
+        }
     }
 
     public BooksList getAllBooksByAuthorId(long authorId) {
@@ -76,16 +80,6 @@ public class BookService {
         numberOfBooksAdded.increment();
     }
 
-    public void updateUserForBook(long bookId, long userId) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-        if (bookOptional.isPresent()) {
-            Book book = bookOptional.get();
-            bookRepository.save(book);
-        } else {
-            timesBookNotFound.increment();
-            throw new NoSuchElementException("No such book is present with id" + bookId);
-        }
-    }
     @Transactional
     public void deleteBookWithAuthor(Book b){
         List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());

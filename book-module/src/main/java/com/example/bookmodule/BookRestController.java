@@ -43,25 +43,20 @@ public class BookRestController {
         bookService.addBook(bookRequestDTO);
     }
 
-    @PutMapping("/books/order/{id}/{userId}")
+    @PutMapping("/order/{id}/{userId}")
     public void createRequestForBook(@PathVariable long id, @PathVariable long userId) {
         bookOrderService.createOrder(id, userId);
     }
 
-    @PutMapping("/books/cancel/{id}/{userId}")
+    @PutMapping("/cancel/{id}/{userId}")
     public void cancelRequestForBook(@PathVariable long id, @PathVariable long userId) {
         bookOrderService.cancelOrder(id, userId);
     }
 
-    @DeleteMapping("/delete/book/{id}")
+    @DeleteMapping("/delete/{id}")
     public String deleteBook(@PathVariable long id) {
         Book b = bookService.getBook(id);
         bookService.deleteBookWithAuthor(b);
         return "Deleted " + id;
-    }
-
-    @PutMapping("/update/{id}/{userId}")
-    public void updateUserOfBook(@PathVariable long id, @PathVariable long userId) {
-        bookService.updateUserForBook(id, userId);
     }
 }
