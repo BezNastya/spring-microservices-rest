@@ -7,7 +7,9 @@ import com.example.bookmodule.entity.Book;
 import com.example.bookmodule.repository.BookRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 import static com.example.bookmodule.config.ActiveMQConfiguration.*;
 
 @Service
+@Slf4j
 public class BookService {
     @Autowired
     private BookRepository bookRepository;
@@ -71,9 +74,22 @@ public class BookService {
     }
 
     public void addBook(BookRequestDTO bookRequestDTO) {
+
+        Book exist = bookRepository.findByName(
+                bookRequestDTO.getName()).orElse(null);
+        if(exist != null && exist.getAuthorId()==bookRequestDTO.getAuthorId() ){
+            throw new RuntimeException("Book is already exists.");
+        }
+
+        jmsTemplate.convertAndSend(BOOK_QUEUE, bookRequestDTO);
+        numberOfBooksAdded.increment();
+    }
+    @JmsListener(destination = BOOK_WITH_AUTHOR_QUEUE)
+    public void addBookWithAuthor(BookRequestDTO bookRequestDTO) {
         Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
         bookRepository.save(entityBook);
-        numberOfBooksAdded.increment();
+
+        log.info("New book added: "+entityBook.toString());
     }
 
     public void updateUserForBook(long bookId, long userId) {

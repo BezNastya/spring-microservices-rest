@@ -6,9 +6,13 @@ import lombok.Data;
 @Data
 public class BookRequestDTO {
     private String name;
+
     private long authorId;
 
-    public static Book convertToEntity(BookRequestDTO bookRequestDTO) {
+    private String firstname;
+    private String lastname;
+
+    public static Book convertToEntity(BookRequestDTO bookRequestDTO){
         Book book = new Book();
         book.setName(bookRequestDTO.getName());
         book.setAuthorId(bookRequestDTO.getAuthorId());

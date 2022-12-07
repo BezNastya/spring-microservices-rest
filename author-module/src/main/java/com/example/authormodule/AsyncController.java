@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URISyntaxException;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @RestController
+@RequestMapping(value = "/author")
 public class AsyncController {
 
     private AuthorRepository authorRepository;
@@ -47,8 +50,8 @@ public class AsyncController {
     }
 
     @GetMapping("/{id}")
-    public Author getById(@PathVariable String id) {
-        return authorRepository.findById(Long.valueOf(id)).get();
+    public Author getById(@PathVariable long id) {
+        return authorRepository.findById(id).get();
     }
 
     @GetMapping("/withBooks/{id}")
@@ -68,6 +71,7 @@ public class AsyncController {
 
         return result;
     }
+
 
 
 }
