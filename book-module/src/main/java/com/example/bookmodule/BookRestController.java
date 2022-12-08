@@ -3,6 +3,7 @@ package com.example.bookmodule;
 import com.example.bookmodule.dto.BookRequestDTO;
 import com.example.bookmodule.dto.BooksList;
 import com.example.bookmodule.entity.Book;
+import com.example.bookmodule.model.BookProto;
 import com.example.bookmodule.repository.BookRepository;
 import com.example.bookmodule.service.BookOrderService;
 import com.example.bookmodule.service.BookService;
@@ -24,6 +25,13 @@ public class BookRestController {
     @GetMapping("/books")
     public BooksList getAllBooks() {
         return bookService.getAllBooks();
+    }
+
+    @RequestMapping(value = "/{id}")
+    public BookProto.Book getBook(@PathVariable long id) {
+        BookProto.Book res = bookService.getBook(id);
+        System.out.println("SEND PROTO: "+ res);
+        return res;
     }
 
     @GetMapping("/books/{userId}")
@@ -54,7 +62,7 @@ public class BookRestController {
 
     @DeleteMapping("/delete/book/{id}")
     public String deleteBook(@PathVariable long id){
-        Book b = bookService.getBook(id);
+        BookProto.Book b = bookService.getBook(id);
         bookService.deleteBookWithAuthor(b);
         return "Deleted " + id;
     }

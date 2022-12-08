@@ -4,6 +4,7 @@ import com.example.bookmodule.dto.BookDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
 import com.example.bookmodule.dto.BooksList;
 import com.example.bookmodule.entity.Book;
+import com.example.bookmodule.model.BookProto;
 import com.example.bookmodule.repository.BookRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -14,6 +15,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -52,8 +54,14 @@ public class BookService {
         return new BooksList(bookDTOS);
     }
 
-    public Book getBook(long id){
-        return bookRepository.findById(id).get();
+    public BookProto.Book getBook(long id){
+        Book found =  bookRepository.findById(id).get();
+        BookProto.Book test = BookProto.Book.newBuilder()
+                .setId(found.getId())
+                .setAuthorId(found.getAuthorId())
+                .setName(found.getName())
+                .build();
+        return test;
     }
 
     public BooksList getAllBooksByAuthorId(long authorId) {
@@ -74,7 +82,6 @@ public class BookService {
     }
 
     public void addBook(BookRequestDTO bookRequestDTO) {
-
         Book exist = bookRepository.findByName(
                 bookRequestDTO.getName()).orElse(null);
         if(exist != null && exist.getAuthorId()==bookRequestDTO.getAuthorId() ){
@@ -88,7 +95,6 @@ public class BookService {
     public void addBookWithAuthor(BookRequestDTO bookRequestDTO) {
         Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
         bookRepository.save(entityBook);
-
         log.info("New book added: "+entityBook.toString());
     }
 
@@ -103,7 +109,11 @@ public class BookService {
         }
     }
     @Transactional
-    public void deleteBookWithAuthor(Book b){
+    public void deleteBookWithAuthor(BookProto.Book b){
+        Book input = new Book();
+        input.setId(b.getId());
+        input.setAuthorId(b.getAuthorId());
+        input.setName(b.getName());
         List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
         if(booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)){
             jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
