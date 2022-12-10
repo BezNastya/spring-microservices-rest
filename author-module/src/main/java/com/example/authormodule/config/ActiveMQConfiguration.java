@@ -1,6 +1,8 @@
 package com.example.authormodule.config;
 
 import com.example.bookmodule.dto.BookRequestDTO;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
@@ -18,7 +20,29 @@ import java.util.Map;
 public class ActiveMQConfiguration {
 
     public static final String BOOK_QUEUE = "new_book";
-    public static final String BOOK_WITH_AUTHOR_QUEUE = "book_author";
+
+    @Value("${spring.activemq.broker-url}")
+    private String brokerUrl;
+
+    @Bean
+    public ActiveMQConnectionFactory receiverActiveMQConnectionFactory() {
+        ActiveMQConnectionFactory activeMQConnectionFactory =
+                new ActiveMQConnectionFactory();
+        activeMQConnectionFactory.setBrokerURL(brokerUrl);
+
+        return activeMQConnectionFactory;
+    }
+
+    @Bean
+    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
+        DefaultJmsListenerContainerFactory factory =
+                new DefaultJmsListenerContainerFactory();
+        factory
+                .setConnectionFactory(receiverActiveMQConnectionFactory());
+        factory.setPubSubDomain(true);
+
+        return factory;
+    }
 
     @Bean
     public JmsListenerContainerFactory<?> queueListenerFactory() {

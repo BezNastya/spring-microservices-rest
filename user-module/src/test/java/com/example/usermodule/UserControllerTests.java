@@ -105,11 +105,6 @@ public class UserControllerTests {
 
     @Test
     public void test_getAllUsers() {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-
         webTestClient
                 .get().uri("/users/all")
                 .exchange()
@@ -126,13 +121,8 @@ public class UserControllerTests {
 
     @Test
     public void test_get_id() {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-
         webTestClient
-                .get().uri("/users/3")
+                .get().uri("/users/1")
                 .headers(http -> http.add("Authorization", "Bearer_dummy"))
                 .exchange()
                 .expectStatus().isOk()
@@ -140,8 +130,8 @@ public class UserControllerTests {
                 .consumeWith(b -> {
                     UserDto response = b.getResponseBody();
                     assertNotNull(response);
-                    assertEquals(mockUsers.get(0).getId(), response.getId());
-                    assertEquals(mockUsers.get(0).getLogin(), response.getLogin());
+                    assertEquals(1, response.getId());
+                    assertEquals("user", response.getLogin());
                     final List<Book> bookList = response.getBookList();
                     assertNotNull(bookList);
                     assertEquals(mockBookListForUser.getBooks().size(), bookList.size());
@@ -151,13 +141,8 @@ public class UserControllerTests {
 
     @Test
     public void test_get_file() throws Exception {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-
         webTestClient
-                .get().uri("/users/file/3")
+                .get().uri("/users/file/1")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_OCTET_STREAM);
