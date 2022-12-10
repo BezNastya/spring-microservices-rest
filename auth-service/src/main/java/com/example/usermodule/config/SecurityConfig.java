@@ -41,12 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .headers().frameOptions().disable()
                 .and()
                 .authorizeRequests()
-
-                .antMatchers("/actuator/**").hasRole("ADMIN")
-                .antMatchers("/h2-console/**").hasRole("ADMIN")
-                .antMatchers("/all").hasRole("ADMIN")
-                .antMatchers("/**").hasAnyRole("ADMIN","USER")
-                .anyRequest().authenticated()
+                .antMatchers("/registerAdmin").hasRole("ADMIN")
+                .antMatchers("/**").permitAll()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));
     }

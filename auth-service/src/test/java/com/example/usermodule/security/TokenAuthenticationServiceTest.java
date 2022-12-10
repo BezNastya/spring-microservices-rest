@@ -41,22 +41,22 @@ public class TokenAuthenticationServiceTest {
 
     @Test
     public void shouldNotAllowAccessToUnauthenticatedUsers() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/all")).andExpect(status().isForbidden());
+        mvc.perform(MockMvcRequestBuilders.get("/registerAdmin")).andExpect(status().isForbidden());
     }
 
     @Test
     public void test_withValidToken_receiveOk() {
         final Role adminRole = new Role();
-        adminRole.setName("ADMIN");
+        adminRole.setName("ROLE_ADMIN");
         final List<Role> roleAdmin = List.of(adminRole);
 
         var tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
-                .get().uri("/users/all")
+                .post().uri("auth/registerAdmin")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isNotFound();
     }
 
     @Test
@@ -71,14 +71,14 @@ public class TokenAuthenticationServiceTest {
                 .get().uri("/all")
                 .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
-                .expectStatus().isForbidden();
+                .expectStatus().isNotFound();
     }
 
     @Test
     public void test_withoutAuthToken_receive401() {
 
         webTestClient
-                .get().uri("/all")
+                .get().uri("/registerAdmin")
                 .exchange()
                 .expectStatus().isForbidden();
     }

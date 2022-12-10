@@ -1,20 +1,15 @@
 package com.example.usermodule.security.jwt;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.GenericFilterBean;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
+import java.io.IOException;
 
 public class JwtTokenFilter extends GenericFilterBean {
 
@@ -30,15 +25,13 @@ public class JwtTokenFilter extends GenericFilterBean {
 
         String token = jwtTokenProvider.resolveToken((HttpServletRequest) req);
         if (token != null && jwtTokenProvider.validateToken(token)) {
-            Collection<GrantedAuthority> roles = List.of(new SimpleGrantedAuthority(jwtTokenProvider.getRole(token)));
-            Authentication auth = new UsernamePasswordAuthenticationToken(jwtTokenProvider.getUsername(token), "", roles);
+            Authentication auth = jwtTokenProvider.getAuthentication(token);
 
             if (auth != null) {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         filterChain.doFilter(req, res);
-
     }
 
 }

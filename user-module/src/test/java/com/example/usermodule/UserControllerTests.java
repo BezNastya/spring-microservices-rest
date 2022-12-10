@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Import(Properties.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class UserControllerTests {
@@ -109,11 +109,9 @@ public class UserControllerTests {
         adminRole.setName("ROLE_ADMIN");
         final List<Role> roleAdmin = List.of(adminRole);
 
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
                 .get().uri("/users/all")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(User.class)
@@ -132,11 +130,10 @@ public class UserControllerTests {
         adminRole.setName("ROLE_ADMIN");
         final List<Role> roleAdmin = List.of(adminRole);
 
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
                 .get().uri("/users/1")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
+                .headers(http -> http.add("Authorization", "Bearer_dummy"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
@@ -158,11 +155,9 @@ public class UserControllerTests {
         adminRole.setName("ROLE_ADMIN");
         final List<Role> roleAdmin = List.of(adminRole);
 
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
 
         webTestClient
                 .get().uri("/users/file/1")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_OCTET_STREAM);
