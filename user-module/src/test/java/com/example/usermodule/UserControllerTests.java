@@ -75,14 +75,14 @@ public class UserControllerTests {
         user.setLogin("user");
         user.setPassword("$2a$04$cmvr8QTVpTxrz2XW3loxWORcgy5t0SzR4gQI.WrRnGEQaKVapAjW6");
         user.setAge(5);
-        user.setId(1L);
+        user.setId(3L);
         user.setRoles(Collections.singletonList(userRole));
 
         User admin = new User();
         admin.setLogin("admin");
         admin.setPassword("$2a$04$0swp2JawQzpHDC90bxFog.5s8HmglaWIVLzevnJX9z1fsk6mcvxzK");
         admin.setAge(5);
-        admin.setId(3L);
+        admin.setId(1L);
         user.setRoles(Collections.singletonList(adminRole));
 
         mockUsers.add(user);
@@ -132,7 +132,7 @@ public class UserControllerTests {
 
 
         webTestClient
-                .get().uri("/users/1")
+                .get().uri("/users/3")
                 .headers(http -> http.add("Authorization", "Bearer_dummy"))
                 .exchange()
                 .expectStatus().isOk()
@@ -157,7 +157,7 @@ public class UserControllerTests {
 
 
         webTestClient
-                .get().uri("/users/file/1")
+                .get().uri("/users/file/3")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_OCTET_STREAM);

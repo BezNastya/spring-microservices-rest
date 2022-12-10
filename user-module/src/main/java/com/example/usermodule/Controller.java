@@ -48,7 +48,7 @@ public class Controller {
     public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") Long id) throws Exception {
         BooksList list = syncExecution.recordCallable(() ->
                 bookModuleClient.getBooksByAuthor(token, id));
-        User usr = userRepository.findById(id).get();
+        User usr = userRepository.findUserById(id);
         UserDto res = new UserDto();
         res.setId(usr.getId());
         res.setLogin(usr.getLogin());
