@@ -54,24 +54,24 @@ public class AsyncController {
     }
 
     @RequestMapping("/{id}/getBook")
-    public  BookProto.Book test(@PathVariable long id, @RequestHeader("Authorization")String token) throws URISyntaxException, InvalidProtocolBufferException {
+    public BookProto.Book test(@PathVariable long id, @RequestHeader("Authorization") String token) throws URISyntaxException, InvalidProtocolBufferException {
         HttpHeaders headers = new HttpHeaders();
 
         headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-        headers.add("Authorization",token);
-        URI uri = new URI("http://localhost:8002/"+id);
+        headers.add("Authorization", token);
+        URI uri = new URI("http://localhost:8002/" + id);
 
         BookProto.Book book = restTemplate.getForObject(uri, BookProto.Book.class);
-        if(book == null){
+        if (book == null) {
             return null;
         }
-        System.out.println("RECEIVE PROTO:"+ book.toString());
+        System.out.println("RECEIVE PROTO:" + book.toString());
         return book;
     }
 
 
     @GetMapping("/withBooks/{id}")
-    public AuthorDto getWithBooksId(@RequestHeader("Authorization")String token, @PathVariable String id) throws Exception {
+    public AuthorDto getWithBooksId(@RequestHeader("Authorization") String token, @PathVariable String id) throws Exception {
         Long authorId = Long.valueOf(id);
         CompletableFuture<Author> authorTask = authorService.getAuthorById(authorId);
         CompletableFuture<List<Book>> booksTask = authorService.getAuthorsWithBooks(authorId, token);

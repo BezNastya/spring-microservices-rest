@@ -26,13 +26,14 @@ public class BookRestController {
     public BooksList getAllBooks() {
         return bookService.getAllBooks();
     }
-//TODO fix
-//    @RequestMapping(value = "/{id}")
-//    public BookProto getBook(@PathVariable long id) {
-//        BookProto res = bookService.getBook(id);
-//        System.out.println("SEND PROTO: "+ res);
-//        return res;
-//    }
+
+
+    @RequestMapping(value = "/{id}")
+    public BookProto.Book getBook(@PathVariable long id) {
+        BookProto.Book res = bookService.getProtoBook(id);
+        System.out.println("SEND PROTO: "+ res);
+        return res;
+    }
 
     @GetMapping("/book/{id}")
     public BookFullDTO getFullBook(@PathVariable long id){

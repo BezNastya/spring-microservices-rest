@@ -3,6 +3,7 @@ package com.example.bookmodule.service;
 import com.example.book.module.AuthorRequest;
 import com.example.book.module.AuthorResponse;
 import com.example.book.module.AuthorSendServiceGrpc;
+import com.example.book.module.BookProto;
 import com.example.bookmodule.dto.BookDTO;
 import com.example.bookmodule.dto.BookFullDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
@@ -61,16 +62,16 @@ public class BookService {
                 .collect(Collectors.toList());
         return new BooksList(bookDTOS);
     }
-//TODO fix
-//    public BookProto.Book getBook(long id){
-//        Book found =  bookRepository.findById(id).get();
-//        BookProto.Book test = BookProto.Book.newBuilder()
-//                .setId(found.getId())
-//                .setAuthorId(found.getAuthorId())
-//                .setName(found.getName())
-//                .build();
-//        return test;
-//    }
+
+    public BookProto.Book getProtoBook(long id){
+        Book found =  bookRepository.findById(id).get();
+        BookProto.Book test = BookProto.Book.newBuilder()
+                .setId(found.getId())
+                .setAuthorId(found.getAuthorId())
+                .setName(found.getName())
+                .build();
+        return test;
+    }
 
     public Book getBook(long id) {
         return bookRepository.findById(id).orElse(null);
@@ -139,27 +140,25 @@ public class BookService {
         }
     }
 
-
-//TODO fix
-//    @Transactional
-//    public void deleteBookWithAuthor(BookProto.Book b){
-//        Book input = new Book();
-//        input.setId(b.getId());
-//        input.setAuthorId(b.getAuthorId());
-//        input.setName(b.getName());
-//        List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
-//        if(booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)){
-//            jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
-//                message.setJMSType(DELETE_ORDER_JMS_TYPE);
-//                return message;
-//            });
-//        }
-//        jmsTemplate.convertAndSend(USERS_BOOK_QUEUE, b.getId(), message -> {
-//            message.setJMSType(DELETE_ORDER_JMS_TYPE);
-//            return message;
-//        });
-//        bookRepository.deleteAllByAuthorId(b.getAuthorId());
-//    }
+    @Transactional
+    public void deleteBookWithAuthor(BookProto.Book b){
+        Book input = new Book();
+        input.setId(b.getId());
+        input.setAuthorId(b.getAuthorId());
+        input.setName(b.getName());
+        List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
+        if(booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)){
+            jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
+                message.setJMSType(DELETE_ORDER_JMS_TYPE);
+                return message;
+            });
+        }
+        jmsTemplate.convertAndSend(USERS_BOOK_QUEUE, b.getId(), message -> {
+            message.setJMSType(DELETE_ORDER_JMS_TYPE);
+            return message;
+        });
+        bookRepository.deleteAllByAuthorId(b.getAuthorId());
+    }
 
     @Transactional
     public void deleteBookWithAuthor(Book b) {
