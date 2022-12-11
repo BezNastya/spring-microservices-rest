@@ -6,6 +6,7 @@ import com.example.bookmodule.exception.NoSuchBookException;
 import com.example.bookmodule.exception.NoSuchOrderException;
 import com.example.bookmodule.exception.OrderAlreadyExistsException;
 import com.example.bookmodule.feign.OrderModuleClient;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import static com.example.bookmodule.config.ActiveMQConfiguration.*;
 
 @Service
+@Slf4j
 public class BookOrderService {
     private OrderModuleClient orderModuleClient;
     private JmsTemplate jmsTemplate;
@@ -59,8 +61,10 @@ public class BookOrderService {
         bookOrderDTO.setUserId(userId);
         jmsTemplate.convertAndSend(ORDER_QUEUE, bookOrderDTO, message -> {
             message.setJMSType(NEW_ORDER_JMS_TYPE);
+            log.info("Sending message to order queue");
             return message;
         });
+        log.info("Sent message to order queue");
     }
 
     public void cancelOrder(long bookId, long userId) {

@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -32,14 +31,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.example.bookmodule.config.ActiveMQConfiguration.*;
-
 @Service
 @Slf4j
 public class BookService {
-
-    @Autowired
-    private JmsTemplate jmsTemplate;
 
     @GrpcClient("grpc-author-book-service")
     AuthorSendServiceGrpc.AuthorSendServiceBlockingStub client;
@@ -126,20 +120,11 @@ public class BookService {
         if (exist != null && exist.getAuthorId() == bookRequestDTO.getAuthorId()) {
             throw new BookAlreadyExistsException("Book already exists.");
         }
-
-        jmsTemplate.convertAndSend(BOOK_QUEUE, bookRequestDTO);
         numberOfBooksAdded.increment();
     }
 
-    @JmsListener(destination = BOOK_WITH_AUTHOR_QUEUE)
-    public void addBookWithAuthor(BookRequestDTO bookRequestDTO) {
-        Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
-        bookRepository.save(entityBook);
 
-        log.info("New book added: " + entityBook.toString());
-    }
-
-    @JmsListener(destination = "EmpTopic")
+    @JmsListener(destination = "EmpTopic", containerFactory = "topicJmsListenerContainerFactory")
     public void receive1(String message) {
         log.info("'BookService' received message='{}'", message);
 
@@ -156,40 +141,9 @@ public class BookService {
     }
 
 
-    @Transactional
-    public void deleteBookWithAuthor(BookProto.Book b) {
-        Book input = new Book();
-        input.setId(b.getId());
-        input.setAuthorId(b.getAuthorId());
-        input.setName(b.getName());
-        List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
-        if (booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)) {
-            jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
-                message.setJMSType(DELETE_ORDER_JMS_TYPE);
-                return message;
-            });
-        }
-        jmsTemplate.convertAndSend(USERS_BOOK_QUEUE, b.getId(), message -> {
-            message.setJMSType(DELETE_ORDER_JMS_TYPE);
-            return message;
-        });
-        bookRepository.deleteAllByAuthorId(b.getAuthorId());
-    }
 
-    @Transactional
-    public void deleteBookWithAuthor(Book b) {
-        List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
-        if (booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)) {
-            jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
-                message.setJMSType(DELETE_ORDER_JMS_TYPE);
-                return message;
-            });
-        }
-        jmsTemplate.convertAndSend(USERS_BOOK_QUEUE, b.getId(), message -> {
-            message.setJMSType(DELETE_ORDER_JMS_TYPE);
-            return message;
-        });
-        bookRepository.deleteAllByAuthorId(b.getAuthorId());
+    public void deleteBook(long id) {
+        bookRepository.deleteById(id);
     }
 
     public void deleteAll() {

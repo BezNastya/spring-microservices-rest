@@ -68,8 +68,7 @@ public class BookRestController {
 
     @DeleteMapping("/delete/{id}")
     public String deleteBook(@PathVariable long id) {
-        Book b = bookService.getBook(id);
-        bookService.deleteBookWithAuthor(b);
+        bookService.deleteBook(id);
         return "Deleted " + id;
     }
 }

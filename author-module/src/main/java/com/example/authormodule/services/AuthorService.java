@@ -62,33 +62,6 @@ public class AuthorService {
         return CompletableFuture.completedFuture(authorRepository.findById(id).get());
     }
 
-    @JmsListener(destination = BOOK_QUEUE)
-    public void addBookWithAuthor(BookRequestDTO bookRequestDTO) {
-
-        Author exist =
-                authorRepository.findById(bookRequestDTO.getAuthorId()).orElse(null);
-        if(exist == null){
-            Author newAuth = new Author();
-            newAuth.setFirstname(bookRequestDTO.getFirstname());
-            newAuth.setLastname(bookRequestDTO.getLastname());
-
-            authorRepository.save(newAuth);
-            Author saved = authorRepository
-                    .findByFirstnameAndLastname(newAuth.getFirstname(), newAuth.getLastname()).orElse(null);
-            bookRequestDTO.setAuthorId(saved.getId());
-        }
-
-        com.example.authormodule.dto.book.module.Book entityBook
-                = BookRequestDTO.convertToEntity(bookRequestDTO);
-        log.info("Book to add:" + entityBook);
-
-        jmsTemplate.convertAndSend(ActiveMQConfiguration.BOOK_WITH_AUTHOR_QUEUE, bookRequestDTO, message -> {
-                message.setJMSType("Test");
-            return message;
-        });
-
-    }
-
     @JmsListener(destination = "EmpTopic")
     public void receiveTopicTest(String message) throws URISyntaxException {
         log.info("'AuthorService' received message='{}'", message);
@@ -105,12 +78,5 @@ public class AuthorService {
                 HttpMethod.POST, requestEntity, String.class);
 
     }
-
-    @JmsListener(destination = AUTHOR_QUEUE, selector = "JMSType = 'DELETE'")
-    public void deleteAuthor(long authorId) {
-        log.info("got something" + authorId);
-        authorRepository.deleteById(authorId);
-    }
-
 
 }
