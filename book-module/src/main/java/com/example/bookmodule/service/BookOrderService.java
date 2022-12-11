@@ -2,10 +2,13 @@ package com.example.bookmodule.service;
 
 import com.example.bookmodule.dto.BookOrderDTO;
 import com.example.bookmodule.dto.BookOrderList;
+import com.example.bookmodule.exception.NoSuchBookException;
+import com.example.bookmodule.exception.NoSuchOrderException;
+import com.example.bookmodule.exception.OrderAlreadyExistsException;
+import com.example.bookmodule.feign.OrderModuleClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -15,13 +18,20 @@ import static com.example.bookmodule.config.ActiveMQConfiguration.*;
 
 @Service
 public class BookOrderService {
-    private RestTemplate restTemplate = new RestTemplate();
-    @Autowired
+    private OrderModuleClient orderModuleClient;
     private JmsTemplate jmsTemplate;
+    private BookService bookService;
+
+    @Autowired
+    public BookOrderService(OrderModuleClient orderModuleClient,
+                            JmsTemplate jmsTemplate, BookService bookService) {
+        this.orderModuleClient = orderModuleClient;
+        this.jmsTemplate = jmsTemplate;
+        this.bookService = bookService;
+    }
 
     public List<Long> getAllBooksInOrders() {
-        BookOrderList bookOrderList = restTemplate
-                .getForObject("http://localhost:8004/orders", BookOrderList.class);
+        BookOrderList bookOrderList = orderModuleClient.getAllBookOrders();
         return bookOrderList
                 .getBookOrders()
                 .stream()
@@ -30,8 +40,7 @@ public class BookOrderService {
     }
 
     public List<Long> getAllBooksInOrdersByUserId(long userId) {
-        BookOrderList bookOrderList = restTemplate
-                .getForObject("http://localhost:8004/orders/" + userId, BookOrderList.class);
+        BookOrderList bookOrderList = orderModuleClient.getBookOrdersByUserId(userId);
         return bookOrderList
                 .getBookOrders()
                 .stream()
@@ -40,8 +49,10 @@ public class BookOrderService {
     }
 
     public void createOrder(long bookId, long userId) {
+        //Call it to check that book exists
+        bookService.getBook(bookId);
         if (getAllBooksInOrders().contains(bookId)) {
-            throw new RuntimeException("Order for book already exists");
+            throw new OrderAlreadyExistsException("Order for book already exists");
         }
         BookOrderDTO bookOrderDTO = new BookOrderDTO();
         bookOrderDTO.setBookId(bookId);
@@ -53,8 +64,10 @@ public class BookOrderService {
     }
 
     public void cancelOrder(long bookId, long userId) {
+        //Call it to check that book exists
+        bookService.getBook(bookId);
         if (!getAllBooksInOrdersByUserId(userId).contains(bookId)) {
-            throw new NoSuchElementException("No order for book for current user");
+            throw new NoSuchOrderException("No order for book for current user");
         }
         BookOrderDTO bookOrderDTO = new BookOrderDTO();
         bookOrderDTO.setBookId(bookId);

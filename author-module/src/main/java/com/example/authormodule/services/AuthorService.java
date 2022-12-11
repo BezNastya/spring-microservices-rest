@@ -5,19 +5,17 @@ import com.example.authormodule.dto.Book;
 import com.example.authormodule.dto.BooksList;
 import com.example.authormodule.dto.book.module.BookRequestDTO;
 import com.example.authormodule.entities.Author;
-import com.example.authormodule.entities.Role;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
+import com.example.authormodule.feign.BookModuleClient;
 import jwt.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -36,38 +34,23 @@ import static com.example.authormodule.config.ActiveMQConfiguration.BOOK_QUEUE;
 public class AuthorService {
 
     private JmsTemplate jmsTemplate;
-    private RestTemplate restTemplate;
     private AuthorRepository authorRepository;
     private JwtTokenProvider jwtTokenProvider;
+    private BookModuleClient bookModuleClient;
 
     @Autowired
-    public AuthorService(JmsTemplate jmsTemplate, RestTemplate restTemplate, AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider) {
-        this.restTemplate = restTemplate;
+    public AuthorService(AuthorRepository authorRepository, JwtTokenProvider jwtTokenProvider,
+                         BookModuleClient bookModuleClient, JmsTemplate jmsTemplate) {
         this.authorRepository = authorRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.bookModuleClient = bookModuleClient;
         this.jmsTemplate = jmsTemplate;
     }
 
 
     @Async("asyncExecutor")
-    public CompletableFuture<List<Book>> getAuthorsWithBooks(Long id, String token) throws URISyntaxException {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-        headers.add("Authorization", token);
-        HttpEntity<Long> entity = new HttpEntity<>(id, headers);
-        URI uri = new URI("http://localhost:8002/booksByAuthor/" + id);
-
-        BooksList list = restTemplate.exchange(uri, HttpMethod.GET, entity, BooksList.class).getBody();
-        if (list != null && list.getBooks() != null) {
-            return CompletableFuture.completedFuture(list.getBooks());
-        }
-        throw new NoSuchElementException();
-    }
-
-    @Async("asyncExecutor")
-    public CompletableFuture<List<Book>> getAuthorsWithUsers(Long id) {
-        BooksList list = restTemplate.getForObject("http://localhost:8001/booksByUser/" + id, BooksList.class);
+    public CompletableFuture<List<Book>> getAuthorsWithBooks(Long id, String token) {
+        BooksList list = bookModuleClient.getBooksByAuthor(token, id);
         if (list != null && list.getBooks() != null) {
             return CompletableFuture.completedFuture(list.getBooks());
         }
@@ -103,6 +86,23 @@ public class AuthorService {
                 message.setJMSType("Test");
             return message;
         });
+
+    }
+
+    @JmsListener(destination = "EmpTopic")
+    public void receiveTopicTest(String message) throws URISyntaxException {
+        log.info("'AuthorService' received message='{}'", message);
+
+        RestTemplate restTemplate = new RestTemplate();
+        String body = "{\"configuredLevel\": \""+ message+" \"}";
+
+        HttpHeaders headers=new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+        HttpEntity requestEntity =new HttpEntity(body, headers);
+
+        ResponseEntity<String> result = restTemplate.exchange(
+                "http://localhost:8011/actuator/loggers/com.example.authormodule",
+                HttpMethod.POST, requestEntity, String.class);
 
     }
 

@@ -2,9 +2,7 @@ package com.example.bookmodule.config;
 
 import com.example.bookmodule.dto.BookOrderDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
-import org.apache.activemq.broker.BrokerService;
-import org.apache.activemq.broker.region.policy.PolicyEntry;
-import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +20,9 @@ import java.util.Map;
 @EnableJms
 @Configuration
 public class ActiveMQConfiguration {
+
+    @Value("${spring.activemq.broker-url}")
+    private String brokerUrl;
 
     public static final String ORDER_QUEUE = "book_orders";
     public static final String AUTHOR_QUEUE = "author_queue";
@@ -53,4 +54,24 @@ public class ActiveMQConfiguration {
         return converter;
     }
 
+
+    @Bean
+    public ActiveMQConnectionFactory receiverActiveMQConnectionFactory() {
+        ActiveMQConnectionFactory activeMQConnectionFactory =
+                new ActiveMQConnectionFactory();
+        activeMQConnectionFactory.setBrokerURL(brokerUrl);
+
+        return activeMQConnectionFactory;
+    }
+
+    @Bean
+    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
+        DefaultJmsListenerContainerFactory factory =
+                new DefaultJmsListenerContainerFactory();
+        factory
+                .setConnectionFactory(receiverActiveMQConnectionFactory());
+        factory.setPubSubDomain(true);
+
+        return factory;
+    }
 }

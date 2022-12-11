@@ -6,17 +6,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/orders")
 public class BookOrderRestController {
 
     @Autowired
     private BookOrderService bookOrderService;
 
-    @GetMapping("/orders")
+    @GetMapping("/all")
     public BookOrderList getAllBooksOrders() {
         return bookOrderService.getAllBookOrders();
     }
 
-    @GetMapping("/orders/{userId}")
+    @GetMapping("/{userId}")
     public BookOrderList getAllBookOrdersByUser(@PathVariable long userId) {
         return bookOrderService.getAllBookOrdersByUserId(userId);
     }

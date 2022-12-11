@@ -1,42 +1,37 @@
 package com.example.usermodule;
 
-import com.example.usermodule.exceptions.UserNotFoundException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.core.instrument.Counter;
+import com.example.usermodule.feign.BookModuleClient;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import com.example.usermodule.repositories.UserRepository;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
+@RequestMapping("/users")
 public class Controller {
 
-    private RestTemplate restTemplate;
     private UserRepository userRepository;
     private MeterRegistry meterRegistry;
     private Timer syncExecution;
+    private BookModuleClient bookModuleClient;
 
     @Autowired
-    public Controller(RestTemplate restTemplate, UserRepository userRepository, MeterRegistry meterRegistry) {
-        this.restTemplate = restTemplate;
+    public Controller(UserRepository userRepository, MeterRegistry meterRegistry, BookModuleClient bookModuleClient) {
         this.userRepository = userRepository;
         this.meterRegistry = meterRegistry;
         this.syncExecution = this.meterRegistry.timer("sync.execution", "module", "book-module");
+        this.bookModuleClient = bookModuleClient;
     }
 
     @GetMapping("/")
@@ -50,17 +45,10 @@ public class Controller {
     }
 
     @GetMapping("/{id}")
-    public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") String id) throws Exception {
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
-        headers.add("Authorization",token);
-        HttpEntity<Long> entity= new HttpEntity(id,headers);
-        URI uri = new URI("http://localhost:8002/books/" + id);
-
+    public UserDto getById(@RequestHeader("Authorization")String token, @PathVariable("id") Long id) throws Exception {
         BooksList list = syncExecution.recordCallable(() ->
-                restTemplate.exchange(uri, HttpMethod.GET, entity, BooksList.class).getBody());
-        User usr = userRepository.findById(Long.valueOf(id)).get();
+                bookModuleClient.getBooksByAuthor(token, id));
+        User usr = userRepository.findUserById(id);
         UserDto res = new UserDto();
         res.setId(usr.getId());
         res.setLogin(usr.getLogin());

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/books")
 @Slf4j
 public class BookRestController {
 
@@ -22,11 +23,16 @@ public class BookRestController {
     @Autowired
     private BookOrderService bookOrderService;
 
-    @GetMapping("/books")
+    @GetMapping("/all")
     public BooksList getAllBooks() {
         return bookService.getAllBooks();
     }
 
+    @GetMapping("/{userId}")
+    public BooksList getAllBooksByUser(@PathVariable long userId) {
+        List<Long> bookIds = bookOrderService.getAllBooksInOrdersByUserId(userId);
+        return bookService.getAllBooksByIds(bookIds);
+    }
 
     @RequestMapping(value = "/{id}")
     public BookProto.Book getBook(@PathVariable long id) {
@@ -35,15 +41,9 @@ public class BookRestController {
         return res;
     }
 
-    @GetMapping("/book/{id}")
+    @GetMapping("/full/{id}")
     public BookFullDTO getFullBook(@PathVariable long id){
         return bookService.getBookWithAuthor(id);
-    }
-
-    @GetMapping("/books/{userId}")
-    public BooksList getAllBooksByUser(@PathVariable long userId) {
-        List<Long> bookIds = bookOrderService.getAllBooksInOrdersByUserId(userId);
-        return bookService.getAllBooksByIds(bookIds);
     }
 
     @GetMapping("/booksByAuthor/{authorId}")
@@ -51,22 +51,22 @@ public class BookRestController {
         return bookService.getAllBooksByAuthorId(authorId);
     }
 
-    @PostMapping("/books")
+    @PostMapping("/add")
     public void addNewBook(@RequestBody BookRequestDTO bookRequestDTO) {
         bookService.addBook(bookRequestDTO);
     }
 
-    @PutMapping("/books/order/{id}/{userId}")
+    @PutMapping("/order/{id}/{userId}")
     public void createRequestForBook(@PathVariable long id, @PathVariable long userId) {
         bookOrderService.createOrder(id, userId);
     }
 
-    @PutMapping("/books/cancel/{id}/{userId}")
+    @PutMapping("/cancel/{id}/{userId}")
     public void cancelRequestForBook(@PathVariable long id, @PathVariable long userId) {
         bookOrderService.cancelOrder(id, userId);
     }
 
-    @DeleteMapping("/delete/book/{id}")
+    @DeleteMapping("/delete/{id}")
     public String deleteBook(@PathVariable long id) {
         Book b = bookService.getBook(id);
         bookService.deleteBookWithAuthor(b);

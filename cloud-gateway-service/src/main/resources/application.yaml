@@ -1,0 +1,38 @@
+server:
+  port: 9999
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:7777/eureka
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: author-service
+          uri: localhost:8001/
+          predicates:
+            - Path=/authors/**
+        - id: user-service
+          uri: localhost:8003/
+          predicates:
+            - Path=/users/**
+        - id: book-module
+          uri: localhost:8002/
+          predicates:
+            - Path=/books/**
+        - id: order-module
+          uri: localhost:8004/
+          predicates:
+            - Path=/orders/**
+        - id: user-management-module
+          uri: localhost:8005/
+          predicates:
+            - Path=/management/**
+        - id: auth-service
+          uri: localhost:5555/
+          predicates:
+            - Path=/auth/**

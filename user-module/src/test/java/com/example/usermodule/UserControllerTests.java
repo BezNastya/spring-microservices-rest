@@ -1,5 +1,6 @@
 package com.example.usermodule;
 
+import com.example.usermodule.feign.BookModuleClient;
 import com.example.usermodule.repositories.RoleRepository;
 import com.example.usermodule.repositories.UserRepository;
 import com.example.usermodule.security.jwt.JwtTokenProvider;
@@ -19,14 +20,9 @@ import org.springframework.boot.test.mock.mockito.MockReset;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.*;
@@ -40,7 +36,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith({SpringExtension.class, MockitoExtension.class})
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application.properties")
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Import(Properties.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class UserControllerTests {
@@ -60,11 +56,8 @@ public class UserControllerTests {
     private RoleRepository mockRoleRepository;
 
 
-    @MockBean(reset = MockReset.NONE)
-    private RestTemplate mockRestTemplate;
-
-    @Mock
-    private ResponseEntity<BooksList> mockResponseEntity;
+    @MockBean
+    private BookModuleClient bookModuleClient;
 
     private final List<User> mockUsers = new ArrayList<>();
 
@@ -82,14 +75,14 @@ public class UserControllerTests {
         user.setLogin("user");
         user.setPassword("$2a$04$cmvr8QTVpTxrz2XW3loxWORcgy5t0SzR4gQI.WrRnGEQaKVapAjW6");
         user.setAge(5);
-        user.setId(1L);
+        user.setId(3L);
         user.setRoles(Collections.singletonList(userRole));
 
         User admin = new User();
         admin.setLogin("admin");
         admin.setPassword("$2a$04$0swp2JawQzpHDC90bxFog.5s8HmglaWIVLzevnJX9z1fsk6mcvxzK");
         admin.setAge(5);
-        admin.setId(3L);
+        admin.setId(1L);
         user.setRoles(Collections.singletonList(adminRole));
 
         mockUsers.add(user);
@@ -105,23 +98,15 @@ public class UserControllerTests {
     public void setUpMocks() {
         MockitoAnnotations.openMocks(this);
 
-        doReturn(mockBookListForUser).when(mockResponseEntity).getBody();
-        when(mockRestTemplate.exchange(any(URI.class), any(HttpMethod.class), any(HttpEntity.class), eq(BooksList.class)))
-                .thenReturn(mockResponseEntity);
+        when(bookModuleClient.getBooksByAuthor(any(), any()))
+                .thenReturn(mockBookListForUser);
     }
 
 
     @Test
     public void test_getAllUsers() {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
-
         webTestClient
-                .get().uri("/all")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
+                .get().uri("/users/all")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBodyList(User.class)
@@ -136,23 +121,17 @@ public class UserControllerTests {
 
     @Test
     public void test_get_id() {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
-
         webTestClient
-                .get().uri("/1")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
+                .get().uri("/users/1")
+                .headers(http -> http.add("Authorization", "Bearer_dummy"))
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(UserDto.class)
                 .consumeWith(b -> {
                     UserDto response = b.getResponseBody();
                     assertNotNull(response);
-                    assertEquals(mockUsers.get(0).getId(), response.getId());
-                    assertEquals(mockUsers.get(0).getLogin(), response.getLogin());
+                    assertEquals(1, response.getId());
+                    assertEquals("user", response.getLogin());
                     final List<Book> bookList = response.getBookList();
                     assertNotNull(bookList);
                     assertEquals(mockBookListForUser.getBooks().size(), bookList.size());
@@ -162,15 +141,8 @@ public class UserControllerTests {
 
     @Test
     public void test_get_file() throws Exception {
-        final Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        final List<Role> roleAdmin = List.of(adminRole);
-
-        String tokenString = jwtTokenProvider.createToken("admin", roleAdmin);
-
         webTestClient
-                .get().uri("/file/1")
-                .headers(http -> http.add("Authorization", "Bearer_" + tokenString))
+                .get().uri("/users/file/1")
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_OCTET_STREAM);
