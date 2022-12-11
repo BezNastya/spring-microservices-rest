@@ -1,9 +1,11 @@
 package com.example.bookmodule.dto;
 
 import com.example.bookmodule.entity.Book;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class BookRequestDTO {
     private String name;
 

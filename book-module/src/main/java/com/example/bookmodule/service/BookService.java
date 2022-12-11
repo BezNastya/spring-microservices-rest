@@ -4,6 +4,8 @@ import com.example.bookmodule.dto.BookDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
 import com.example.bookmodule.dto.BooksList;
 import com.example.bookmodule.entity.Book;
+import com.example.bookmodule.exception.BookAlreadyExistsException;
+import com.example.bookmodule.exception.NoSuchBookException;
 import com.example.bookmodule.repository.BookRepository;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -61,7 +63,7 @@ public class BookService {
             return bookOptional.get();
         } else {
             timesBookNotFound.increment();
-            throw new NoSuchElementException("No such book is present with id" + id);
+            throw new NoSuchBookException("No such book is present with id" + id);
         }
     }
 
@@ -86,19 +88,20 @@ public class BookService {
 
         Book exist = bookRepository.findByName(
                 bookRequestDTO.getName()).orElse(null);
-        if(exist != null && exist.getAuthorId()==bookRequestDTO.getAuthorId() ){
-            throw new RuntimeException("Book is already exists.");
+        if (exist != null && exist.getAuthorId() == bookRequestDTO.getAuthorId()) {
+            throw new BookAlreadyExistsException("Book already exists.");
         }
 
         jmsTemplate.convertAndSend(BOOK_QUEUE, bookRequestDTO);
         numberOfBooksAdded.increment();
     }
+
     @JmsListener(destination = BOOK_WITH_AUTHOR_QUEUE)
     public void addBookWithAuthor(BookRequestDTO bookRequestDTO) {
         Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
         bookRepository.save(entityBook);
 
-        log.info("New book added: "+entityBook.toString());
+        log.info("New book added: " + entityBook.toString());
     }
 
     @JmsListener(destination = "EmpTopic")
@@ -118,9 +121,9 @@ public class BookService {
     }
 
     @Transactional
-    public void deleteBookWithAuthor(Book b){
+    public void deleteBookWithAuthor(Book b) {
         List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
-        if(booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)){
+        if (booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)) {
             jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
                 message.setJMSType(DELETE_ORDER_JMS_TYPE);
                 return message;
@@ -131,6 +134,10 @@ public class BookService {
             return message;
         });
         bookRepository.deleteAllByAuthorId(b.getAuthorId());
+    }
+
+    public void deleteAll() {
+        bookRepository.deleteAll();
     }
 
 }
