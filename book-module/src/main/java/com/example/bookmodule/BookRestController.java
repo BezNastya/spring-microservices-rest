@@ -1,10 +1,10 @@
 package com.example.bookmodule;
 
+import com.example.book.module.BookProto;
+import com.example.bookmodule.dto.BookFullDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
 import com.example.bookmodule.dto.BooksList;
 import com.example.bookmodule.entity.Book;
-import com.example.bookmodule.model.BookProto;
-import com.example.bookmodule.repository.BookRepository;
 import com.example.bookmodule.service.BookOrderService;
 import com.example.bookmodule.service.BookService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +26,17 @@ public class BookRestController {
     public BooksList getAllBooks() {
         return bookService.getAllBooks();
     }
+//TODO fix
+//    @RequestMapping(value = "/{id}")
+//    public BookProto getBook(@PathVariable long id) {
+//        BookProto res = bookService.getBook(id);
+//        System.out.println("SEND PROTO: "+ res);
+//        return res;
+//    }
 
-    @RequestMapping(value = "/{id}")
-    public BookProto.Book getBook(@PathVariable long id) {
-        BookProto.Book res = bookService.getBook(id);
-        System.out.println("SEND PROTO: "+ res);
-        return res;
+    @GetMapping("/book/{id}")
+    public BookFullDTO getFullBook(@PathVariable long id){
+        return bookService.getBookWithAuthor(id);
     }
 
     @GetMapping("/books/{userId}")
@@ -61,8 +66,8 @@ public class BookRestController {
     }
 
     @DeleteMapping("/delete/book/{id}")
-    public String deleteBook(@PathVariable long id){
-        BookProto.Book b = bookService.getBook(id);
+    public String deleteBook(@PathVariable long id) {
+        Book b = bookService.getBook(id);
         bookService.deleteBookWithAuthor(b);
         return "Deleted " + id;
     }

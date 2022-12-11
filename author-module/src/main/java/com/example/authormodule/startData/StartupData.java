@@ -35,7 +35,10 @@ public class StartupData implements CommandLineRunner {
         Author author = new Author();
         author.setId(1L);
         author.setFirstname("fd");
+        author.setLastname("sad");
         Author author2 = new Author();
+        author2.setFirstname("fd");
+        author2.setLastname("sad");
         author2.setId(2L);
 
         authorRepository.save(author);

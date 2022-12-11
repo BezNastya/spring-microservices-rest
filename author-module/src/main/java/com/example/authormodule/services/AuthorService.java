@@ -1,14 +1,14 @@
 package com.example.authormodule.services;
 
+import com.example.authormodule.config.ActiveMQConfiguration;
 import com.example.authormodule.dto.Book;
 import com.example.authormodule.dto.BooksList;
+import com.example.authormodule.dto.book.module.BookRequestDTO;
 import com.example.authormodule.entities.Author;
 import com.example.authormodule.entities.Role;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jwt.JwtTokenProvider;
-import com.example.bookmodule.config.ActiveMQConfiguration;
-import com.example.bookmodule.dto.BookRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CompletableFuture;
 
+import static com.example.authormodule.config.ActiveMQConfiguration.AUTHOR_QUEUE;
 import static com.example.authormodule.config.ActiveMQConfiguration.BOOK_QUEUE;
 
-import static com.example.bookmodule.config.ActiveMQConfiguration.AUTHOR_QUEUE;
 
 @Service
 @Slf4j
@@ -95,7 +95,7 @@ public class AuthorService {
             bookRequestDTO.setAuthorId(saved.getId());
         }
 
-        com.example.bookmodule.entity.Book entityBook
+        com.example.authormodule.dto.book.module.Book entityBook
                 = BookRequestDTO.convertToEntity(bookRequestDTO);
         log.info("Book to add:" + entityBook);
 

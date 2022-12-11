@@ -1,6 +1,6 @@
 package com.example.authormodule.config;
 
-import com.example.bookmodule.dto.BookRequestDTO;
+import com.example.authormodule.dto.book.module.BookRequestDTO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
@@ -19,6 +19,7 @@ public class ActiveMQConfiguration {
 
     public static final String BOOK_QUEUE = "new_book";
     public static final String BOOK_WITH_AUTHOR_QUEUE = "book_author";
+    public static final String AUTHOR_QUEUE = "author_queue";
 
     @Bean
     public JmsListenerContainerFactory<?> queueListenerFactory() {

@@ -4,31 +4,21 @@ package com.example.authormodule;
 import com.example.authormodule.dto.AuthorDto;
 import com.example.authormodule.dto.Book;
 import com.example.authormodule.entities.Author;
-import com.example.authormodule.model.BookProto;
 import com.example.authormodule.services.AuthorRepository;
 import com.example.authormodule.services.AuthorService;
+import com.example.book.module.BookProto;
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping(value = "/author")
@@ -97,7 +87,6 @@ public class AsyncController {
 
         return result;
     }
-
 
 
 }
