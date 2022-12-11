@@ -4,8 +4,6 @@ import com.example.book.module.AuthorRequest;
 import com.example.book.module.AuthorResponse;
 import com.example.book.module.AuthorSendServiceGrpc;
 import com.example.book.module.BookProto;
-import com.example.book.module.AuthorResponse;
-import com.example.book.module.BookProto;
 import com.example.bookmodule.dto.BookDTO;
 import com.example.bookmodule.dto.BookFullDTO;
 import com.example.bookmodule.dto.BookRequestDTO;
@@ -68,8 +66,8 @@ public class BookService {
         return new BooksList(bookDTOS);
     }
 
-    public BookProto.Book getProtoBook(long id){
-        Book found =  bookRepository.findById(id).get();
+    public BookProto.Book getProtoBook(long id) {
+        Book found = bookRepository.findById(id).get();
         BookProto.Book test = BookProto.Book.newBuilder()
                 .setId(found.getId())
                 .setAuthorId(found.getAuthorId())
@@ -146,26 +144,26 @@ public class BookService {
         log.info("'BookService' received message='{}'", message);
 
         RestTemplate restTemplate = new RestTemplate();
-        String body = "{\"configuredLevel\": \""+ message+" \"}";
+        String body = "{\"configuredLevel\": \"" + message + " \"}";
 
-        HttpHeaders headers=new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
-        HttpEntity requestEntity =new HttpEntity(body, headers);
+        HttpEntity requestEntity = new HttpEntity(body, headers);
 
         ResponseEntity<String> result = restTemplate.exchange(
-                "http://localhost:8012/actuator/loggers/com.example.authormodule",
+                "http://localhost:8012/actuator/loggers/com.example.bookmodule",
                 HttpMethod.POST, requestEntity, String.class);
     }
 
 
     @Transactional
-    public void deleteBookWithAuthor(BookProto.Book b){
+    public void deleteBookWithAuthor(BookProto.Book b) {
         Book input = new Book();
         input.setId(b.getId());
         input.setAuthorId(b.getAuthorId());
         input.setName(b.getName());
         List<Book> booksWithSameAuthor = bookRepository.findAllByAuthorId(b.getAuthorId());
-        if(booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)){
+        if (booksWithSameAuthor.size() == 1 && booksWithSameAuthor.contains(b)) {
             jmsTemplate.convertAndSend(AUTHOR_QUEUE, b.getAuthorId(), message -> {
                 message.setJMSType(DELETE_ORDER_JMS_TYPE);
                 return message;
