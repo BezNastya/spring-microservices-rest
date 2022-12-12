@@ -106,21 +106,26 @@ public class BookService {
         return new BooksList(bookDTOS);
     }
 
+    public void addBook(BookRequestDTO bookRequestDTO) {
+
+        Book exist = bookRepository.findByName(
+                bookRequestDTO.getName()).orElse(null);
+        if(exist != null && exist.getAuthorId()==bookRequestDTO.getAuthorId() ){
+            throw new RuntimeException("Book is already exists.");
+        }
+        Book entityBook = BookRequestDTO.convertToEntity(bookRequestDTO);
+        bookRepository.save(entityBook);
+
+        log.info("New book added: "+entityBook.toString());
+        numberOfBooksAdded.increment();
+    }
+
     public BooksList getAllBooksByIds(List<Long> bookIds) {
         List<Book> bookList = bookRepository.findAllById(bookIds);
         List<BookDTO> bookDTOS = bookList.stream()
                 .map(BookDTO::new)
                 .collect(Collectors.toList());
         return new BooksList(bookDTOS);
-    }
-
-    public void addBook(BookRequestDTO bookRequestDTO) {
-        Book exist = bookRepository.findByName(
-                bookRequestDTO.getName()).orElse(null);
-        if (exist != null && exist.getAuthorId() == bookRequestDTO.getAuthorId()) {
-            throw new BookAlreadyExistsException("Book already exists.");
-        }
-        numberOfBooksAdded.increment();
     }
 
 

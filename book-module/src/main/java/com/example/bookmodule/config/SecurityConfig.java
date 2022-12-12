@@ -52,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/actuator/env").permitAll()
                 .antMatchers("/actuator/httptrace").permitAll()
                 .antMatchers("/actuator/conditions").permitAll()
-                .antMatchers("/actuator").hasRole("ADMIN")
+                .antMatchers("/actuator/**").permitAll()
 
 
                 .antMatchers("/books").permitAll()
